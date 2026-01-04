@@ -1,0 +1,13 @@
+[{
+	"resource": "/c:/Users/Tharun/OneDrive/Documents/solana-pay/solana-stream/platform/app/globals.css",
+	"owner": "_generated_diagnostic_collection_name_#2",
+	"code": "unknownAtRules",
+	"severity": 4,
+	"message": "Unknown at rule @custom-variant",
+	"source": "css",
+	"startLineNumber": 4,
+	"startColumn": 1,
+	"endLineNumber": 4,
+	"endColumn": 16,
+	"origin": "extHost1"
+}]
