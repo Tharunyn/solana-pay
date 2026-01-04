@@ -1,7 +1,7 @@
 {
-  "name": "aptos-activity-sdk",
+  "name": "solana-data-sdk",
   "version": "1.0.0",
-  "description": "Real-time Aptos address activity monitoring SDK",
+  "description": "Real-time Solana address activity monitoring SDK",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
