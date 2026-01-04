@@ -1,14 +1,12 @@
-import { SolActStream } from '../dist/SolActStream';
-// import type { ActivityType } from '../src/types';
+import { SolActStream } from '../src/SolActStream';
+import type { ActivityType } from '../src/types';
 
 // Configuration
 const CONFIG = {
-  // Aptos node URL (mainnet, testnet, or devnet)
-  NODE_URL: 'https://fullnode.mainnet.aptoslabs.com',
-  // Address to monitor (replace with the address you want to monitor)
-  ADDRESS_TO_MONITOR: '0x1d8727df53fa2735c6cfb6cdaa09aad31ed04f5fd345cf86424680e9868a937b',
-  // WebSocket server port
-  PORT: 8080,
+  // Solana RPC URL (mainnet, testnet, or devnet)
+  NODE_URL: 'https://api.mainnet-beta.solana.com',
+  // Solana address to monitor (replace with the address you want to monitor)
+  ADDRESS_TO_MONITOR: 'YOUR_SOLANA_ADDRESS_HERE',
   // Polling interval in milliseconds
   POLLING_INTERVAL: 10000,
 };
@@ -25,10 +23,8 @@ async function main() {
   });
 
   try {
-    // Start the WebSocket server
-    await activityStream.start(CONFIG.PORT);
-    console.log(`WebSocket server started on port ${CONFIG.PORT}`);
-
+    console.log(`Starting to monitor address: ${CONFIG.ADDRESS_TO_MONITOR}`);
+    
     // Watch for all activities on the specified address
     const subscription = activityStream.watchAddress(
       CONFIG.ADDRESS_TO_MONITOR,
@@ -44,6 +40,9 @@ async function main() {
         console.log('===========================\n');
       }
     );
+    
+    // The watchAddress method should automatically start monitoring
+    console.log('Successfully started monitoring. Waiting for activities...');
 
     console.log(`Monitoring address: ${CONFIG.ADDRESS_TO_MONITOR}`);
     console.log('Press Ctrl+C to stop monitoring...');
