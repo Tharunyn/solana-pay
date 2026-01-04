@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 type Transaction = {
   signature: string;
@@ -13,47 +16,55 @@ type Transaction = {
 };
 
 export default function Home() {
-  const [isConnected, setIsConnected] = useState(false);
-  const [publicKey, setPublicKey] = useState<string | null>(null);
+  const { publicKey, connected, connecting } = useWallet();
+  const { connection } = useConnection();
   const [balance, setBalance] = useState<number | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Mock function to connect wallet
-  const connectWallet = async () => {
+  useEffect(() => {
+    if (connected && publicKey) {
+      getBalance();
+      getTransactions();
+    }
+  }, [connected, publicKey, connection]);
+
+  const getBalance = async () => {
+    if (!publicKey || !connection) return;
+    
     try {
-      setIsLoading(true);
-      // In a real app, you would connect to a wallet like Phantom here
-      // This is just a mock implementation
-      setTimeout(() => {
-        setPublicKey('YourPublicKey123...');
-        setBalance(42.5);
-        setIsConnected(true);
-        setIsLoading(false);
-        
-        // Mock transactions
-        setTransactions([
-          {
-            signature: '5nX9...XyZ1',
-            timestamp: Date.now() - 3600000,
-            status: 'success',
-            amount: 1.5,
-            from: 'FromAddress123...',
-            to: 'YourPublicKey123...'
-          },
-          {
-            signature: '3mY2...AbC9',
-            timestamp: Date.now() - 7200000,
-            status: 'success',
-            amount: 2.8,
-            from: 'YourPublicKey123...',
-            to: 'AnotherAddress456...'
-          }
-        ]);
-      }, 1000);
+      const balance = await connection.getBalance(publicKey);
+      setBalance(balance / LAMPORTS_PER_SOL);
     } catch (error) {
-      console.error('Failed to connect wallet:', error);
-      setIsLoading(false);
+      console.error('Failed to get balance:', error);
+    }
+  };
+
+  const getTransactions = async () => {
+    if (!publicKey || !connection) return;
+    
+    try {
+      const signatures = await connection.getSignaturesForAddress(publicKey, { limit: 10 });
+      const txs = await Promise.all(
+        signatures.map(async (sig) => {
+          const tx = await connection.getTransaction(sig.signature);
+          if (tx && tx.meta && tx.message) {
+            const amount = (tx.meta.preBalances[0] - tx.meta.postBalances[0]) / LAMPORTS_PER_SOL;
+            return {
+              signature: sig.signature,
+              timestamp: tx.blockTime ? tx.blockTime * 1000 : Date.now(),
+              status: tx.meta.err ? 'failed' : 'success',
+              amount: Math.abs(amount),
+              from: tx.message.accountKeys[0]?.toBase58() || 'Unknown',
+              to: tx.message.accountKeys[1]?.toBase58() || 'Unknown'
+            };
+          }
+          return null;
+        })
+      );
+      
+      setTransactions(txs.filter((tx): tx is Transaction => tx !== null));
+    } catch (error) {
+      console.error('Failed to get transactions:', error);
     }
   };
 
@@ -73,28 +84,16 @@ export default function Home() {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Solana Monitor</h1>
           </div>
           
-          {!isConnected ? (
-            <button
-              onClick={connectWallet}
-              disabled={isLoading}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg disabled:opacity-50 flex items-center"
-            >
-              {isLoading ? 'Connecting...' : 'Connect Wallet'}
-              {isLoading && (
-                <svg className="animate-spin -mr-1 ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              )}
-            </button>
+          {!connected ? (
+            <WalletMultiButton className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg" />
           ) : (
             <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow">
-              <p className="text-sm text-gray-600 dark:text-gray-300">Connected: {publicKey?.substring(0, 6)}...{publicKey?.substring(publicKey.length - 4)}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Connected: {publicKey?.toBase58().substring(0, 6)}...{publicKey?.toBase58().substring(publicKey.toBase58().length - 4)}</p>
             </div>
           )}
         </div>
 
-        {isConnected && (
+        {connected && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
               <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">Account Balance</h2>
@@ -138,18 +137,13 @@ export default function Home() {
           </div>
         )}
 
-        {!isConnected && (
+        {!connected && (
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8 text-center mt-12">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Welcome to Solana Monitor</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               Connect your wallet to monitor your Solana transactions and account balance.
             </p>
-            <button
-              onClick={connectWallet}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-6 rounded-lg"
-            >
-              Connect Wallet
-            </button>
+            <WalletMultiButton className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-6 rounded-lg" />
           </div>
         )}
       </main>
