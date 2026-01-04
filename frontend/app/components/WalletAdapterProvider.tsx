@@ -8,7 +8,7 @@ import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adap
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 export default function WalletAdapterProvider({ children }: { children: React.ReactNode }) {
-  const network = clusterApiUrl('mainnet-beta');
+  const network = clusterApiUrl('testnet');
   
   const wallets = useMemo(
     () => [

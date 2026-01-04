@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Solana Monitor",
-  description: "Monitor your Solana transactions and account balance",
+  title: "Whale Stream",
+  description: "Monitor whale addresses for balance changes and transactions",
 };
 
 export default function RootLayout({
