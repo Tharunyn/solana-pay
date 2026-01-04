@@ -377,12 +377,6 @@ export default function Home() {
                                   Fee: {log.data.fee.toFixed(4)} SOL
                                 </p>
                               )}
-                              {/* Debug info */}
-                              {process.env.NODE_ENV === 'development' && (
-                                <p className="text-xs text-yellow-400 bg-yellow-500/10 px-2 py-1 rounded-lg">
-                                  Raw: {balanceChange.toFixed(6)}
-                                </p>
-                              )}
                             </div>
                             {log.txHash && (
                               <p className="text-xs text-gray-500 mt-2 font-mono">
@@ -420,7 +414,7 @@ export default function Home() {
             )}
 
             {/* Debug Info */}
-            {process.env.NODE_ENV === 'development' && (
+            {/* {process.env.NODE_ENV === 'development' && (
               <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl shadow-md p-4">
                 <h3 className="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-2">Debug Info</h3>
                 <div className="text-xs text-yellow-700 dark:text-yellow-300 space-y-1">
@@ -437,7 +431,7 @@ export default function Home() {
                   )}
                 </div>
               </div>
-            )}
+            )} */}
           </div>
         )}
 
@@ -455,6 +449,174 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        {/* Use Cases Section */}
+        <div className="mt-20 mb-12">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent mb-4">Use Cases</h2>
+            <p className="text-gray-400 text-lg max-w-3xl mx-auto">
+              Powered by Solana's high-performance blockchain, enabling instant data streaming for next-generation applications
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Gaming */}
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 hover:bg-white/15 transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-6">
+                <div className="w-6 h-6 bg-white rounded-lg"></div>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-4">Gaming</h3>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-start">
+                  <span className="text-purple-400 mr-2">•</span>
+                  <span>Live match data & scores</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-purple-400 mr-2">•</span>
+                  <span>Real-time leaderboards</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-purple-400 mr-2">•</span>
+                  <span>Instant item transfers</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-purple-400 mr-2">•</span>
+                  <span>Achievement unlocks</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Sports */}
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 hover:bg-white/15 transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-6">
+                <div className="w-6 h-6 bg-white rounded-lg"></div>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-4">Sports</h3>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-start">
+                  <span className="text-green-400 mr-2">•</span>
+                  <span>Instant match results</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-400 mr-2">•</span>
+                  <span>Live score updates</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-400 mr-2">•</span>
+                  <span>Player statistics</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-400 mr-2">•</span>
+                  <span>Tournament brackets</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Prediction & Betting */}
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 hover:bg-white/15 transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-6">
+                <div className="w-6 h-6 bg-white rounded-lg"></div>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-4">Prediction & Betting</h3>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-start">
+                  <span className="text-blue-400 mr-2">•</span>
+                  <span>Instant odds updates</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-blue-400 mr-2">•</span>
+                  <span>Live bet settlements</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-blue-400 mr-2">•</span>
+                  <span>Real-time price feeds</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-blue-400 mr-2">•</span>
+                  <span>Risk management data</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Finance */}
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 hover:bg-white/15 transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mb-6">
+                <div className="w-6 h-6 bg-white rounded-lg"></div>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-4">Finance</h3>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-start">
+                  <span className="text-yellow-400 mr-2">•</span>
+                  <span>Real-time analytics</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-yellow-400 mr-2">•</span>
+                  <span>Market data streams</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-yellow-400 mr-2">•</span>
+                  <span>Trading notifications</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-yellow-400 mr-2">•</span>
+                  <span>Risk monitoring</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* AI & Simulation */}
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 hover:bg-white/15 transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl flex items-center justify-center mb-6">
+                <div className="w-6 h-6 bg-white rounded-lg"></div>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-4">AI & Simulation</h3>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-start">
+                  <span className="text-red-400 mr-2">•</span>
+                  <span>Training data traces</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-red-400 mr-2">•</span>
+                  <span>Real-time simulation results</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-red-400 mr-2">•</span>
+                  <span>Model performance metrics</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-red-400 mr-2">•</span>
+                  <span>Neural network updates</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* DeFi */}
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 p-8 hover:bg-white/15 transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center mb-6">
+                <div className="w-6 h-6 bg-white rounded-lg"></div>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-4">DeFi</h3>
+              <ul className="space-y-3 text-gray-300">
+                <li className="flex items-start">
+                  <span className="text-indigo-400 mr-2">•</span>
+                  <span>Yield farming updates</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-indigo-400 mr-2">•</span>
+                  <span>Liquidity pool changes</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-indigo-400 mr-2">•</span>
+                  <span>Token swap notifications</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-indigo-400 mr-2">•</span>
+                  <span>Smart contract events</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </main>
       
       <style jsx>{`
