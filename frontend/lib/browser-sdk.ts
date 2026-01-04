@@ -140,22 +140,47 @@ export class SolActStream {
               });
               
               if (tx && tx.meta && tx.transaction.message) {
-                // Calculate balance change
-                const preBalance = tx.meta.preBalances[0] / 1e9;
-                const postBalance = tx.meta.postBalances[0] / 1e9;
-                const balanceChange = postBalance - preBalance;
+                // Find the account index for the monitored address
+                const accountKeys = tx.transaction.message.staticAccountKeys.map(key => key.toString());
+                const monitoredAddressIndex = accountKeys.findIndex(key => key === address);
                 
-                // Update tracked balance
-                const currentBalance = this.addressBalances[address] || 0;
-                this.addressBalances[address] = postBalance;
-                
-                event.data.amount = Math.abs(balanceChange);
-                event.data.fee = tx.meta.fee / 1e9;
-                event.data.balanceChange = balanceChange; // Positive for incoming, negative for outgoing
-                event.data.previousBalance = preBalance;
-                event.data.newBalance = postBalance;
-                
-                console.log(`Balance change: ${balanceChange > 0 ? '+' : ''}${balanceChange} SOL (${balanceChange > 0 ? 'Received' : 'Sent'})`);
+                if (monitoredAddressIndex !== -1) {
+                  // Calculate balance change for the monitored address
+                  const preBalance = tx.meta.preBalances[monitoredAddressIndex] / 1e9;
+                  const postBalance = tx.meta.postBalances[monitoredAddressIndex] / 1e9;
+                  const balanceChange = postBalance - preBalance;
+                  
+                  // Update tracked balance
+                  const currentBalance = this.addressBalances[address] || 0;
+                  this.addressBalances[address] = postBalance;
+                  
+                  event.data.amount = Math.abs(balanceChange);
+                  event.data.fee = tx.meta.fee / 1e9;
+                  event.data.balanceChange = balanceChange; // Positive for incoming, negative for outgoing
+                  event.data.previousBalance = preBalance;
+                  event.data.newBalance = postBalance;
+                  
+                  console.log(`Balance change for ${address}: ${balanceChange > 0 ? '+' : ''}${balanceChange} SOL (${balanceChange > 0 ? 'Received' : 'Sent'})`);
+                } else {
+                  console.log(`Monitored address ${address} not found in transaction accounts`);
+                  // Use fallback method
+                  const pubkey = new PublicKey(address);
+                  const currentBalance = await this.connection.getBalance(pubkey);
+                  const currentBalanceSOL = currentBalance / 1e9;
+                  const previousBalance = this.addressBalances[address] || 0;
+                  const estimatedChange = currentBalanceSOL - previousBalance;
+                  
+                  if (Math.abs(estimatedChange) > 0.0001) {
+                    event.data.amount = Math.abs(estimatedChange);
+                    event.data.balanceChange = estimatedChange;
+                    event.data.previousBalance = previousBalance;
+                    event.data.newBalance = currentBalanceSOL;
+                    
+                    this.addressBalances[address] = currentBalanceSOL;
+                    
+                    console.log(`Estimated balance change: ${estimatedChange > 0 ? '+' : ''}${estimatedChange} SOL`);
+                  }
+                }
               } else {
                 console.log(`Full transaction details not available, trying alternative approach`);
                 

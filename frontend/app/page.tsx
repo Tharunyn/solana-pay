@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { WalletMultiButton, WalletDisconnectButton } from '@solana/wallet-adapter-react-ui';
 import { LAMPORTS_PER_SOL, Connection, PublicKey } from '@solana/web3.js';
 import { SolActStream, ActivityEvent } from '../lib/browser-sdk';
 
@@ -17,7 +17,7 @@ type Transaction = {
 };
 
 export default function Home() {
-  const { publicKey, connected, connecting } = useWallet();
+  const { publicKey, connected, connecting, disconnect } = useWallet();
   const { connection } = useConnection();
   const [balance, setBalance] = useState<number | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -25,6 +25,28 @@ export default function Home() {
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [activityLogs, setActivityLogs] = useState<ActivityEvent[]>([]);
   const [stream, setStream] = useState<SolActStream | null>(null);
+
+  const handleDisconnect = async () => {
+    // Stop monitoring if active
+    if (isMonitoring && stream) {
+      try {
+        await stream.unsubscribe(monitorAddress);
+        setStream(null);
+        setIsMonitoring(false);
+      } catch (error) {
+        console.error('Failed to stop monitoring:', error);
+      }
+    }
+    
+    // Clear all state
+    setBalance(null);
+    setTransactions([]);
+    setActivityLogs([]);
+    setMonitorAddress('');
+    
+    // Disconnect wallet
+    disconnect();
+  };
 
   useEffect(() => {
     if (connected && publicKey) {
@@ -144,10 +166,18 @@ export default function Home() {
           {!connected ? (
             <WalletMultiButton className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg shadow-purple-500/25 transition-all duration-200 hover:shadow-purple-500/40" />
           ) : (
-            <div className="bg-white/10 backdrop-blur-md rounded-xl px-6 py-3 border border-white/20 shadow-xl">
-              <p className="text-sm text-gray-300 font-medium">
-                <span className="text-purple-400">Connected:</span> {publicKey?.toBase58().substring(0, 6)}...{publicKey?.toBase58().substring(publicKey.toBase58().length - 4)}
-              </p>
+            <div className="flex items-center space-x-4">
+              <div className="bg-white/10 backdrop-blur-md rounded-xl px-6 py-3 border border-white/20 shadow-xl">
+                <p className="text-sm text-gray-300 font-medium">
+                  <span className="text-purple-400">Connected:</span> {publicKey?.toBase58().substring(0, 6)}...{publicKey?.toBase58().substring(publicKey.toBase58().length - 4)}
+                </p>
+              </div>
+              <button
+                onClick={handleDisconnect}
+                className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg shadow-red-500/25 transition-all duration-200 hover:shadow-red-500/40"
+              >
+                Disconnect
+              </button>
             </div>
           )}
         </header>
@@ -304,10 +334,21 @@ export default function Home() {
                 <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
                   {activityLogs.map((log, index) => {
                     const balanceChange = log.data.balanceChange || 0;
+                    // For the monitored address, positive balance change should be green (receiving SOL)
+                    // Negative balance change should be red (sending SOL)
                     const isPositive = balanceChange > 0;
                     const changeColor = isPositive ? 'text-green-400' : 'text-red-400';
                     const changeIcon = isPositive ? '↑' : '↓';
                     const hasBalanceChange = Math.abs(balanceChange) > 0.0001;
+                    
+                    // Debug logging
+                    console.log(`Activity log ${index}:`, {
+                      address: log.address,
+                      balanceChange,
+                      isPositive,
+                      type: log.type,
+                      data: log.data
+                    });
                     
                     return (
                       <div key={`${log.txHash}-${index}`} className="bg-white/5 rounded-xl p-4 border-l-4 border-purple-500 hover:bg-white/10 transition-all duration-200">
@@ -334,6 +375,12 @@ export default function Home() {
                               {log.data.fee > 0 && (
                                 <p className="text-xs text-gray-500 bg-white/10 px-2 py-1 rounded-lg">
                                   Fee: {log.data.fee.toFixed(4)} SOL
+                                </p>
+                              )}
+                              {/* Debug info */}
+                              {process.env.NODE_ENV === 'development' && (
+                                <p className="text-xs text-yellow-400 bg-yellow-500/10 px-2 py-1 rounded-lg">
+                                  Raw: {balanceChange.toFixed(6)}
                                 </p>
                               )}
                             </div>
